@@ -1,0 +1,14 @@
+{
+    "name": "rafaelka/jasigphpcas",
+    "type": "typo3-flow-package",
+    "description": null,
+    "version": "alpha 0.5",
+    "require": {
+        "typo3/flow": "*"
+    },
+    "autoload": {
+        "psr-0": {
+            "RafaelKa\\JasigPhpCas": "Classes"
+        }
+    }
+}
