@@ -125,7 +125,7 @@ TYPO3:
 #                  # One of both options must be defined.
 #                    identifier: path.to.role.identifier
 #                  # "staticIdentifier" overrides "identifier" and uses role identifier from Policy.yaml
-#                  # mapper will not look in CAS-attributes and simply assign difined role to account.
+#                  # mapper will not look in CAS-attributes and simply assign defined role to account.
 #                    staticIdentifier: userFromSomeSite
 #                  # 
 #                  ##
