@@ -20,7 +20,7 @@ class JasigPhpCas extends \TYPO3\Flow\Security\Authentication\EntryPoint\Abstrac
 	 * c: search for AuthenticationRequiredException in Framework
 	 * 
 	 * Also do not try to force authentication in this way. 
-	 * Using Flows own \TYPO3\Flow\Security\Authentication\EntryPoint\WebRedirect to some Action at SSO-Client-Machine, that checks current access state and gives feedback to customer/user ...
+	 * Use Flows own \TYPO3\Flow\Security\Authentication\EntryPoint\WebRedirect to some Action at SSO-Client-Machine, that checks current access state and gives feedback to customer/user ...
 	 * 
 	 * @return void
 	 */
