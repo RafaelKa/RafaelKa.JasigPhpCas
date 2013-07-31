@@ -7,13 +7,12 @@ namespace RafaelKa\JasigPhpCas\Security\Authentication\Token;
  *                                                                        */
 
 use	TYPO3\Flow\Annotations as Flow,
-	TYPO3\Flow\Security\RequestPatternInterface,
-	TYPO3\Flow\Security\Authentication\TokenInterface;
+	TYPO3\Flow\Security\RequestPatternInterface;
 
 /**
  * An authentication token used for CAS authentication.
  */
-class PhpCasToken extends AbstractCasToken {
+class PhpCasToken extends \TYPO3\Flow\Security\Authentication\Token\AbstractToken {
 
 	/**
 	 * @Flow\Inject

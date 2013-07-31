@@ -11,7 +11,7 @@ use	TYPO3\Flow\Annotations as Flow,
 	TYPO3\Flow\Reflection\ObjectAccess;
 
 /**
- * Description of JasigCASMappingService
+ * Description of DefaultMapper
  *
  * @Flow\Scope("singleton")
  */
@@ -117,6 +117,12 @@ class DefaultMapper implements MapperInterface {
 	protected $settingsValidator;
 
 	/**
+	 * @Flow\Inject
+	 * @var \TYPO3\Flow\Security\Context
+	 */
+	protected $securityContext;
+
+	/**
 	 * Constructor for this Mapper
 	 * 
 	 * @param \TYPO3\Flow\Configuration\ConfigurationManager $configurationManager
@@ -200,11 +206,14 @@ class DefaultMapper implements MapperInterface {
 	 * @return \TYPO3\Flow\Security\Account According to the configuration see description of this method. 
 	 */
 	public function getMappedUser($providerName, array $casAttributes = NULL) {
-		if (empty($casAttributes)) {
-			$this->casManager->getCasAttributes($providerName);
+		if (empty($casAttributes) && $this->casManager->getCasAttributes($providerName) === array()) {
+			return NULL;
+		} elseif (empty($casAttributes)) {
+			$casAttributes = $this->casManager->getCasAttributes($providerName);
 		}
-		$party = $this->getPerson($providerName, $casAttributes);
+
 		$account = $this->getAccount($providerName, $casAttributes);
+		$party = $this->getPerson($providerName, $casAttributes);
 		$roles = $this->getRoles($providerName, $casAttributes);
 
 		$account->setRoles($roles);
@@ -222,17 +231,26 @@ class DefaultMapper implements MapperInterface {
 		
 		if ($this->settings[$providerName]['persistAccounts'] === TRUE
 		&& $this->settings[$providerName]['doNotMapParties'] === TRUE) {
+			// @todo : skip return account if redirectByNewUser is defined and this is new user
+			$this->persistAccount($providerName, $account);
 			return $account;
 		}
 
 		if ($this->settings[$providerName]['persistAccounts'] === TRUE
-		&& $this->settings[$providerName]['doNotMapParties'] === FALSE
-		&& $this->settings[$providerName]['persistParties'] === TRUE) {
-			
-			$account->setParty($party);
+		&& $this->settings[$providerName]['persistParties'] === FALSE) {
+			$this->persistAccount($providerName, $account);
+			return $account;
 		}
 
-		return $account;
+		if ($this->settings[$providerName]['persistAccounts'] === TRUE
+		&& $this->settings[$providerName]['persistParties'] === TRUE) {
+			// @todo : skip return account if redirectByNewUser is defined and this is new user
+			$account->setParty($party);
+			$this->persistAccount($providerName, $account);
+			return $account;
+		}
+
+		
 	}
 
 	/**
@@ -255,11 +273,11 @@ class DefaultMapper implements MapperInterface {
 			throw new \RafaelKa\JasigPhpCas\Exception\JasigPhpCasSecurityException(sprintf('Cas attribute for ... .%s.providerOptions.Mapping.Account.accountidentifier is not a string. Doubtless you configured path to CAS-Attributes-array-value wrong.', $providerName));
 		}
 
-		if (isset($accountSettings['useStaticProviderNameByPersistingAccounts']) && empty($accountSettings['forceUseStaticProviderNameByPersistingAccounts'])) {
-			$account->setAuthenticationProviderName($accountSettings['useStaticProviderNameByPersistingAccounts']);
+		if (isset($accountSettings['useStaticProviderName']) && empty($accountSettings['forceUseStaticProviderName'])) {
+			$account->setAuthenticationProviderName($accountSettings['useStaticProviderName']);
 		}
-		if (isset($accountSettings['forceUseStaticProviderNameByPersistingAccounts'])) {
-			$account->setAuthenticationProviderName($accountSettings['forceUseStaticProviderNameByPersistingAccounts']);
+		if (isset($accountSettings['forceUseStaticProviderName'])) {
+			$account->setAuthenticationProviderName($accountSettings['forceUseStaticProviderName']);
 		}
 
 		if (isset($accountSettings['periodOfValidity']) && is_int($accountSettings['periodOfValidity'])) {
@@ -269,6 +287,111 @@ class DefaultMapper implements MapperInterface {
 		} 
 
 		return $account;
+	}
+
+	/**
+	 * Persists new accounts only. If account is allready persisted, then account will be overridden with account from repository.
+	 * 
+	 * @param string $providerName  Provider name
+	 * @param \TYPO3\Flow\Security\Account $account account to persist.
+	 * @return void
+	 */
+	private function persistAccount($providerName, \TYPO3\Flow\Security\Account &$account) {
+		$accountFromRepository = $this->accountRepository->findActiveByAccountIdentifierAndAuthenticationProviderName($account->getAccountIdentifier(), $account->getAuthenticationProviderName());
+		if ($accountFromRepository instanceof \TYPO3\Flow\Security\Account) {
+			$account = $accountFromRepository;
+			$this->updateRolesInAccount($providerName, $account);
+			return;
+		}
+
+		$casAttributes = $this->casManager->getCasAttributes($providerName);
+		$account->setRoles($this->getRoles($providerName, $casAttributes));
+		
+		$this->mekeRedirectByNewUserIfNeeded($providerName, $account);
+
+		$this->finalizePersistingNewUser($account);
+	}
+
+	/**
+	 * Adds new roles from CAS server since last authentication if some was added in CAS-Server.
+	 * Is used only if Account was persisted. See persistAccount() method.
+	 * 
+	 * @param string $providerName Provider name. WARNING: not in settings set useStaticProviderNameByPersistingAccounts.
+	 * @param \TYPO3\Flow\Security\Account $account
+	 * @return void
+	 * @todo : move persistAll() at shutdown
+	 */
+	private function updateRolesInAccount($providerName, \TYPO3\Flow\Security\Account &$account) {
+		$casAttributes = $this->casManager->getCasAttributes($providerName);
+		$casServerRoles = $this->getRoles($providerName, $casAttributes);
+		$accountMustBeUpdated = FALSE;
+		foreach ($casServerRoles as $casServerRole){
+			$accountMustBeUpdated = $accountMustBeUpdated == TRUE ? $accountMustBeUpdated : !$account->hasRole($casServerRole);
+			$account->addRole($casServerRole);
+		}
+
+		if ($accountMustBeUpdated) {
+			$this->accountRepository->update($account);
+		}
+
+		$this->persistenceManager->persistAll();
+	}
+
+	/**
+	 * If Action for new users is defined and new user is detected, then makes this method redirect to defined Action and breaks authentication.
+	 * 
+	 * You must persist new user self and afterwards authenticate this user by calling $this->casManager->authenticateNewUser($providerName).
+	 * 
+	 * @param string $providerName
+	 * @param \TYPO3\Flow\Security\Account $account
+	 * @return void
+	 */
+	private function mekeRedirectByNewUserIfNeeded($providerName, \TYPO3\Flow\Security\Account $account) {
+		$redirectControllerAndAction = 
+			$this->configurationManager->getConfiguration(
+				\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 
+				'TYPO3.Flow.security.authentication.providers.' . $providerName . '.providerOptions.Mapping.redirectByNewUser');
+		if (!empty($redirectControllerAndAction)) {
+			$this->casManager->setMiscellaneousByPath($providerName . '.Account', $account);
+			$this->fixWhiteScreenByAbortingAuthentication($providerName);
+			throw new \TYPO3\Flow\Mvc\Exception\StopActionException('New user detectded.', 1375270925);
+		}
+	}
+
+	/**
+	 * If authentication status is set to AUTHENTICATION_NEEDED by some token, then each action that calls some security method returns blank/white screen.
+	 * 
+	 * This method sets authentication status to NO_CREDENTIALS_GIVEN by tokens, where authentication status was set to AUTHENTICATION_NEEDED by aborting authenticaion.
+	 * 
+	 * @param string $providerName
+	 * @return void
+	 */
+	private function fixWhiteScreenByAbortingAuthentication($providerName) {
+		$casTokens = $this->securityContext->getAuthenticationTokensOfType(\RafaelKa\JasigPhpCas\Service\CasManager::DEFAULT_CAS_TOKEN);
+		/* @var $casToken \RafaelKa\JasigPhpCas\Security\Authentication\Token\PhpCasToken */
+		foreach ($casTokens as $casToken) {
+			if ($casToken->getAuthenticationStatus() !== \TYPO3\Flow\Security\Authentication\TokenInterface::AUTHENTICATION_NEEDED
+			|| $casToken->getAuthenticationProviderName() !== $providerName) {
+				continue;
+			}
+			$casToken->setAuthenticationStatus(\TYPO3\Flow\Security\Authentication\TokenInterface::NO_CREDENTIALS_GIVEN);
+		}
+	}
+
+	/**
+	 * Persists new Account.
+	 * 
+	 * @param \TYPO3\Flow\Security\Account $account
+	 * @return void
+	 */
+	public function finalizePersistingNewUser(\TYPO3\Flow\Security\Account $account) {
+		$party = $account->getParty();
+		if ($party instanceof \TYPO3\Party\Domain\Model\AbstractParty) {
+			$this->partyRepository->add($party);
+		}
+
+		$this->accountRepository->add($account);
+		$this->persistenceManager->persistAll();
 	}
 
 	/**
@@ -433,15 +556,11 @@ class DefaultMapper implements MapperInterface {
 			$person->setPrimaryElectronicAddress($primaryElectronicAddress);
 		}
 
-//		if (empty($partySettings['persistParty']) || $partySettings['persistParty'] !== TRUE) {
-//			$this->setSessionedUuidByParty($providerName, $person);
-//		}
-
 		return $person;
 	}
 
 	/**
-	 * Compares two person names.
+	 * Compares person names.
 	 * 
 	 * @param \TYPO3\Party\Domain\Model\PersonName $person1
 	 * @param \TYPO3\Party\Domain\Model\PersonName $person2
@@ -505,7 +624,7 @@ class DefaultMapper implements MapperInterface {
 		if (FLOW_SAPITYPE === 'CLI') {
 			return TRUE;
 		}
-		$settingsAreValid = TRUE;
+
 		if (FLOW_SAPITYPE === 'Web') {
 			$validationErrors = $this->settingsValidator->getValidationErrors();
 			foreach ($validationErrors as $providerName => $errors) {
@@ -527,20 +646,6 @@ class DefaultMapper implements MapperInterface {
 		} else {
 			return 'flow.bat';
 		}
-	}
-
-	/**
-	 * Validates settings for given cas provider. 
-	 * WARNING: Given provider must be of type RafaelKa\JasigPhpCas\Authentication\Provider\PhpCasAuthenticationProvider
-	 * validateConfigurationForCasProvider
-	 * 
-	 * @param string $providerName provider name to Validate
-	 * @return boolean 
-	 * @throws \RafaelKa\JasigPhpCas\Exception\InvalidArgumentException
-	 * @throws \TYPO3\Flow\Security\Exception\MissingConfigurationException
-	 */
-	public function validateMappingConfigurationByCasProvider($providerName) {
-		
 	}
 
 	/**

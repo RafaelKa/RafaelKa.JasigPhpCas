@@ -22,11 +22,10 @@ use	TYPO3\Flow\Annotations as Flow,
  * 
  * @Flow\Scope("session")
  * 
- * @todo<br>
- * 1. move \phpCAS::* and DEFAULT_CAS_SERVER_* to PhpCasClientLocum. Remove systemLogger property if not needed.<br>
- * 2. move validate* 
- * 3. replace miscellaneous properly
- * 4. finish and move resolveResoursceToRealpath() to Utility to use that static. Remove packageManager property
+ * @todo move \phpCAS::* and DEFAULT_CAS_SERVER_* to PhpCasClientLocum. Remove systemLogger property if not needed.<br>
+ * @todo move validate* 
+ * @todo replace miscellaneous properly
+ * @todo finish and move resolveResoursceToRealpath() to Utility to use that static. Remove packageManager property
  */
 class CasManager {
 
@@ -106,14 +105,12 @@ class CasManager {
 	protected $systemLogger;
 
 	/**
-	 * 
 	 * @Flow\Transient
 	 * @var array
 	 */
 	protected $casProviders = array();
 
 	/**
-	 * 
 	 * @Flow\Transient
 	 * @var array
 	 */
@@ -121,9 +118,10 @@ class CasManager {
 
 	/**
 	 * @Flow\Transient
-	 * @var string
+	 * @Flow\Inject
+	 * @var \TYPO3\Flow\Security\Context
 	 */
-	protected $isBeforeRedirectRequest = FALSE;
+	protected $securityContext;
 
 	/**
 	 * forces to authenticate.
@@ -138,16 +136,15 @@ class CasManager {
 		if (!$this->isCasProvider($providerName)) {
 			throw new \RafaelKa\JasigPhpCas\Exception\InvalidArgumentException(sprintf('%s is not CAS-Provider.'. $providerName), 1371247195);
 		}
-		$this->forceValidationException();
+		$this->forceThrowingValidationException();
+
 		if (!empty($this->casAttributes[$providerName])) {
-			$this->isBeforeRedirectRequest = FALSE;
 			return $this->casAttributes[$providerName];
 		}
 
 		$this->createPhpCasClient($providerName);
 		if (\phpCAS::isAuthenticated()) {
 			$this->casAttributes[$providerName] = \phpCAS::getAttributes();
-			$this->isBeforeRedirectRequest = FALSE;
 
 			// @todo handle phpCAS session -> use sessionhanling from php CAS or delete this.
 			session_unset();
@@ -157,9 +154,27 @@ class CasManager {
 			}
 			return $this->casAttributes[$providerName];
 		}
-		$this->isBeforeRedirectRequest = TRUE;
-		//register_shutdown_function(array($this, 'forceCasAuthentification'));
 		\phpCAS::forceAuthentication();
+	}
+
+	/**
+	 * Description
+	 * 
+	 * @param string $providerName
+	 * @return void
+	 */
+	public function finalizeAuthenticationByNewUser($providerName) {
+		$casTokens = $this->securityContext->getAuthenticationTokensOfType(\RafaelKa\JasigPhpCas\Service\CasManager::DEFAULT_CAS_TOKEN);
+		/* @var $casToken \RafaelKa\JasigPhpCas\Security\Authentication\Token\PhpCasToken */
+		foreach ($casTokens as $casToken) {
+			if ($casToken->getAuthenticationProviderName() === $providerName
+			&& !empty($this->miscellaneous[$providerName]['Account'])) {
+				$casToken->setAccount($this->miscellaneous[$providerName]['Account']);
+				$casToken->setAuthenticationStatus(\TYPO3\Flow\Security\Authentication\TokenInterface::AUTHENTICATION_SUCCESSFUL);
+				$mapper = $this->getMapperByProviderName($providerName);
+				$mapper->finalizePersistingNewUser($this->miscellaneous[$providerName]['Account']);
+			}	
+		}
 	}
 
 	/**
@@ -167,7 +182,7 @@ class CasManager {
 	 * 
 	 * @return void
 	 */
-	private function forceValidationException() {
+	private function forceThrowingValidationException() {
 		$casProviderNames = $this->getAllCasProviderNames();
 		foreach ($casProviderNames as $casProviderName) {
 			$this->getMapperByProviderName($casProviderName);
@@ -194,14 +209,6 @@ class CasManager {
 		}
 		$this->casProviders = array_unique($this->casProviders);
 		return $this->casProviders;
-	}
-
-	/**
-	 * 
-	 * @return boolean
-	 */
-	public function isBeforeRedirectRequest() {
-		return $this->isBeforeRedirectRequest;
 	}
 
 	/**
@@ -357,7 +364,10 @@ class CasManager {
 	 * @return array
 	 */
 	public function getCasAttributes($providerName) {
-		return $this->casAttributes[$providerName];
+		if (!empty($this->casAttributes[$providerName])) {
+			return $this->casAttributes[$providerName];
+		}
+		return array();
 	}
 
 	/**
@@ -514,39 +524,8 @@ class CasManager {
 
 		if (!empty($casClientSettings['casServerCACertificatePath'])) {
 			\phpCAS::setCasServerCACert($this->resolveResoursceToRealpath($casClientSettings['casServerCACertificatePath']));
+			//\phpCAS::setCasServerCACert(\RafaelKa\JasigPhpCas\Utility\Files::resolveResoursceToRealpath($casClientSettings['casServerCACertificatePath']));
 		}
-	}
-
-	/**
-	 * Returns Mapper-Service configured for CAS Provider.
-	 *
-	 * @param string $providerName provider name to fetch a mapper from.
-	 * @return \RafaelKa\JasigPhpCas\Service\MapperInterface Mapper service.
-	 * @throws \RafaelKa\JasigPhpCas\Exception\InvalidConfigurationException
-	 * @throws \RafaelKa\JasigPhpCas\Exception\InvalidClassDefinitionForMapperException
-	 */
-	private function getMapperByProviderName($providerName) {
-		if (!empty($this->providerMappers[$providerName])) {
-			return $this->providerMappers[$providerName];
-		}
-
-		$mapperClassName = $this->configurationManager->getConfiguration(\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'TYPO3.Flow.security.authentication.providers.' . $providerName . 'Mapping.MapperClass');
-		if (empty($mapperClassName)) {
-			$mapperClassName = self::DEFAULT_CAS_MAPPER;
-		} else {
-			if (!class_exists($mapperClassName)) {
-				throw new \RafaelKa\JasigPhpCas\Exception\InvalidConfigurationException(sprintf('Class "%s" configured in Settings.yaml at "TYPO3.Flow.security.authentication.providers.%s.Mapping.MapperClass" does not exists.', $mapperClassName, $providerName), 1370983932);
-			}
-			if (!$this->reflectionService->isClassImplementationOf($mapperClassName, 'RafaelKa\JasigPhpCas\Service\MapperInterface')) {
-				throw new \RafaelKa\JasigPhpCas\Exception\InvalidClassDefinitionForMapperException(sprintf('Class "%s" configured in Settings.yaml at "TYPO3.Flow.security.authentication.providers.%s.MapperClass" is not implementation of "RafaelKa\JasigPhpCas\Service\MapperInterface". Please rediclare "%s" as "\TYPO3\Flow\Security\Authentication\TokenInterface" adapter Class.', $mapperClassName, $providerName, $mapperClassName), 1370981664);
-			}
-			if (!$this->reflectionService->getClassAnnotation($mapperClassName, 'TYPO3\Flow\Annotations\Scope')->value !== 'singleton') {
-				throw new \RafaelKa\JasigPhpCas\Exception\InvalidClassDefinitionForMapperException(sprintf('Class "%s" configured in Settings.yaml at "TYPO3.Flow.security.authentication.providers.%s.MapperClass" is not a singleton. Please declare "%s" as "@Flow\Scope("singleton")" Class.', $mapperClassName, $providerName, $mapperClassName), 1371036890);
-			}
-		}
-
-		$this->providerMappers[$providerName] = $this->objectManager->get($mapperClassName);
-		return $this->providerMappers[$providerName];
 	}
 
 	/**
@@ -655,6 +634,38 @@ class CasManager {
 			}
 		}
 		return TRUE;
+	}
+
+	/**
+	 * Returns Mapper-Service configured for CAS Provider.
+	 *
+	 * @param string $providerName provider name to fetch a mapper from.
+	 * @return \RafaelKa\JasigPhpCas\Service\MapperInterface
+	 * @throws \RafaelKa\JasigPhpCas\Exception\InvalidConfigurationException
+	 * @throws \RafaelKa\JasigPhpCas\Exception\InvalidClassDefinitionForMapperException
+	 */
+	private function getMapperByProviderName($providerName) {
+		if (!empty($this->providerMappers[$providerName])) {
+			return $this->providerMappers[$providerName];
+		}
+
+		$mapperClassName = $this->configurationManager->getConfiguration(\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'TYPO3.Flow.security.authentication.providers.' . $providerName . 'Mapping.MapperClass');
+		if (empty($mapperClassName)) {
+			$mapperClassName = self::DEFAULT_CAS_MAPPER;
+		} else {
+			if (!class_exists($mapperClassName)) {
+				throw new \RafaelKa\JasigPhpCas\Exception\InvalidConfigurationException(sprintf('Class "%s" configured in Settings.yaml at "TYPO3.Flow.security.authentication.providers.%s.Mapping.MapperClass" does not exists.', $mapperClassName, $providerName), 1370983932);
+			}
+			if (!$this->reflectionService->isClassImplementationOf($mapperClassName, 'RafaelKa\JasigPhpCas\Service\MapperInterface')) {
+				throw new \RafaelKa\JasigPhpCas\Exception\InvalidClassDefinitionForMapperException(sprintf('Class "%s" configured in Settings.yaml at "TYPO3.Flow.security.authentication.providers.%s.MapperClass" is not implementation of "RafaelKa\JasigPhpCas\Service\MapperInterface". Please rediclare "%s" as "\TYPO3\Flow\Security\Authentication\TokenInterface" adapter Class.', $mapperClassName, $providerName, $mapperClassName), 1370981664);
+			}
+			if (!$this->reflectionService->getClassAnnotation($mapperClassName, 'TYPO3\Flow\Annotations\Scope')->value !== 'singleton') {
+				throw new \RafaelKa\JasigPhpCas\Exception\InvalidClassDefinitionForMapperException(sprintf('Class "%s" configured in Settings.yaml at "TYPO3.Flow.security.authentication.providers.%s.MapperClass" is not a singleton. Please declare "%s" as "@Flow\Scope("singleton")" Class.', $mapperClassName, $providerName, $mapperClassName), 1371036890);
+			}
+		}
+
+		$this->providerMappers[$providerName] = $this->objectManager->get($mapperClassName);
+		return $this->providerMappers[$providerName];
 	}
 }
 

@@ -66,6 +66,16 @@ interface MapperInterface {
 	 * @return \TYPO3\Party\Domain\Model\Person
 	 */
 	public function getPerson($providerName, array $casAttributes);
+	
+	/**
+	 * Is in two cases needed:
+	 * a: if you want to persist Accounts per default
+	 * b: if you want confirmation
+	 * 
+	 * @param \TYPO3\Flow\Security\Account $account
+	 * @return void
+	 */
+	public function finalizePersistingNewUser(\TYPO3\Flow\Security\Account $account);
 
 //	/**
 //	 * Injects validator  

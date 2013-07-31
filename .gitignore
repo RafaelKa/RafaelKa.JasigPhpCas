@@ -1,1 +1,2 @@
 *.yaml
+/Classes/RafaelKa/JasigPhpCas/Command/DumpSessionCommandController.php

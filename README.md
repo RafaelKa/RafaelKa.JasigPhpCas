@@ -1,11 +1,13 @@
-#RafaelKa.JasigPhpCas
+# RafaelKa.JasigPhpCas
 
-A package for TYPO3 Flow to authenticate by CAS-Server.
-A CAS("Central Authentication Service" by Jasig) Client. 
+# The package for TYPO3 Flow to authenticate by CAS-Server.
+# The CAS("Central Authentication Service" by Jasig) Client. 
 
 ## Installation
 composer install rafaelka-jasig-php-cas
-here is a sample configuration file.
+
+
+###here is a sample configuration file.
 ```yaml
 TYPO3:
   Flow:
