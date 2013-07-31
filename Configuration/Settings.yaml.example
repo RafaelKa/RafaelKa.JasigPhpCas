@@ -121,34 +121,31 @@ TYPO3:
 #                  -
 #                    identifier: userClass
 #                    packageKey: RafaelKa.JasigPhpCas.Demo
-#################################################################################
-                  - 
-                  ##############################################################
-                  # One of both options must be defined.
-                    identifier: path.to.role.identifier
-                  # "staticIdentifier" overrides "identifier" and uses role identifier from Policy.yaml
-                  # mapper will not look in CAS-attributes and simply assign difined role to account.
-                    staticIdentifier: userFromSomeSite
-                  # 
-                  ##
-                  # requered
-                    packageKey: RafaelKa.JasigPhpCas.Demo
-                  ##############################################################
-                  -
-                    identifier: path.to.role.identifier
-                    packageKey: RafaelKa.JasigPhpCas.Demo
-                    # Optional: Default is NULL. This option is ignored if "staticIdentifier" is set.
-                    rewriteRoles:
-                      S: Student
-                      M: Mitarbeiter
-                      L: Lehrbeauftragter
-                      P: Professor
-                  -
-                    identifier: department.0
-                    packageKey: RafaelKa.JasigPhpCas.Demo
-                  -
-                    identifier: department.1
-                    packageKey: RafaelKa.JasigPhpCas.Demo
+#                  - 
+#                  # One of both options must be defined.
+#                    identifier: path.to.role.identifier
+#                  # "staticIdentifier" overrides "identifier" and uses role identifier from Policy.yaml
+#                  # mapper will not look in CAS-attributes and simply assign defined role to account.
+#                    staticIdentifier: userFromSomeSite
+#                  # 
+#                  ##
+#                  # requered
+#                    packageKey: RafaelKa.JasigPhpCas.Demo
+#                  -
+#                    identifier: path.to.role.identifier
+#                    packageKey: RafaelKa.JasigPhpCas.Demo
+#                    # Optional: Default is NULL. This option is ignored if "staticIdentifier" is set.
+#                    rewriteRoles:
+#                      S: Student
+#                      M: Mitarbeiter
+#                      L: Lehrbeauftragter
+#                      P: Professor
+#                  -
+#                    identifier: department.0
+#                    packageKey: RafaelKa.JasigPhpCas.Demo
+#                  -
+#                    identifier: department.1
+#                    packageKey: RafaelKa.JasigPhpCas.Demo
 ################################################################################
                 ################################################################
                 Party:
@@ -187,19 +184,18 @@ TYPO3:
 #                      identifier: electronicAddress.0.identifier
 #                      type: electronicAddress.0.type
 #                      usage: electronicAddress.0.usage
-#                      approved: electronicAddress.0.approved
-#################################################################################  
+#                      approved: electronicAddress.0.approved  
 ##################### Example2: #################################################
 #                      identifier: electronicAddress.0.identifier
 #                      staticType: E-mail
 #                      usage: Work
 #                      staticApproved: TRUE
+##################### Example3: #################################################
+#                      identifier: path.to.mail
+#                      staticType: E-mail
+#                      usage: path.to.usage
+#                      staticApproved: TRUE
 #################################################################################
-                      identifier: path.to.mail
-                      staticType: E-mail
-                      usage: path.to.usage
-                      staticApproved: TRUE
-################################################################################
 
                     # Not implemented currently.
                     electronicAddresses:

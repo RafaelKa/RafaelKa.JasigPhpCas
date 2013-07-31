@@ -18,10 +18,10 @@ class JasigPhpCas extends \TYPO3\Flow\Security\Authentication\EntryPoint\Abstrac
 	 * a: If authentication fails on SSO-Client site.
 	 * b: If SSO Account missing some Role.
 	 * c: search for AuthenticationRequiredException in Framework
-	 *
-	 * Also do not try to force authentication in this way.
+	 * 
+	 * Also do not try to force authentication in this way. 
 	 * Use Flows own \TYPO3\Flow\Security\Authentication\EntryPoint\WebRedirect to some Action at SSO-Client-Machine, that checks current access state and gives feedback to customer/user ...
-	 *
+	 * 
 	 * @return void
 	 */
 	public function startAuthentication(\TYPO3\Flow\Http\Request $request, \TYPO3\Flow\Http\Response $response) {
