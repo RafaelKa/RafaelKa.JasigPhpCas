@@ -1,14 +1,23 @@
 {
-    "name": "rafaelka/jasigphpcas",
-    "type": "typo3-flow-package",
-    "description": null,
-    "version": "alpha 0.5",
-    "require": {
-        "typo3/flow": "*"
-    },
-    "autoload": {
-        "psr-0": {
-            "RafaelKa\\JasigPhpCas": "Classes"
-        }
-    }
+	"name": "rafaelka\/jasigphpcas",
+	"type": "typo3-flow-package",
+	"description": "Jasigs \"Cantral Authentication Service\"-Client for TYPO3 Flow and Neos",
+	"license": ["MIT"],
+	"version": "0.5",
+	"authors": [
+		{
+			"name": "Rafael Kähm",
+			"email": "rafael@kaehms.de",
+			"homepage": "www.kaehms.de",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"typo3/flow": "*"
+	},
+	"autoload": {
+		"psr-0": {
+			"RafaelKa\\JasigPhpCas": "Classes"
+		}
+	}
 }
