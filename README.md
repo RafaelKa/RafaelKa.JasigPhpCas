@@ -4,7 +4,7 @@
 # The CAS("Central Authentication Service" by Jasig) Client. 
 
 ## Installation
-composer install rafaelka-jasig-php-cas
+composer require "rafaelka/jasigphpcas":"0.5.*@dev"
 
 
 ###here is a sample configuration file.
