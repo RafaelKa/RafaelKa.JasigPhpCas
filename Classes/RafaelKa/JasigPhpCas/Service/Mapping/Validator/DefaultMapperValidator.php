@@ -41,14 +41,14 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 	protected $validationErrors = array();
 
 	/**
-	 * 
+	 *
 	 * @param \TYPO3\Flow\Configuration\ConfigurationManager $configurationManager
 	 * @return void
 	 */
 	public function __construct(\TYPO3\Flow\Configuration\ConfigurationManager $configurationManager) {
 		$this->configurationManager = $configurationManager;
 		$providers = $this->configurationManager->getConfiguration(
-			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 
+			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS,
 			'TYPO3.Flow.security.authentication.providers');
 		foreach ($providers as $providerName => $providerSettings) {
 			if ($providerSettings['provider'] === \RafaelKa\JasigPhpCas\Service\CasManager::DEFAULT_CAS_PROVIDER
@@ -62,7 +62,7 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 
 	/**
 	 * Returns validation errors.
-	 * 
+	 *
 	 * @param type $providerName
 	 * @return array
 	 */
@@ -79,7 +79,7 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 	/**
 	 * Validates mapping settings for provider.
 	 * Also checks if TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping is declared.
-	 * 
+	 *
 	 * @param string $providerName Provider name to fetch an account from.
 	 * @return boolean
 	 */
@@ -90,7 +90,7 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 
 		$validationResult = TRUE;
 		$mappingSettings = $this->configurationManager->getConfiguration(
-			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 
+			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS,
 			'TYPO3.Flow.security.authentication.providers.' . $providerName . '.providerOptions.Mapping');
 
 		if (empty($mappingSettings)
@@ -119,7 +119,7 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 
 	/**
 	 * Validates mapping settings for Account.
-	 * 
+	 *
 	 * @param string $providerName Provider name to fetch an account from.
 	 * @return boolean
 	 */
@@ -136,14 +136,14 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Account.accountidentifier is missing or empty. Please specify it in your Settings.yaml file.', 1370797671, array($providerName), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Account.accountidentifier', $providerName));
 			$validationResult = FALSE;
 		}
-	
-		if (!empty($casMappingSettings['Account']['credentialsSource']) 
+
+		if (!empty($casMappingSettings['Account']['credentialsSource'])
 		&& !is_string($casMappingSettings['Account']['credentialsSource'])) {
 			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The value of TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Account.credentialsSource is not a string. Please specify it in your Settings.yaml file.', 1370797673, array($providerName), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Account.credentialsSource', $providerName));
 			$validationResult = FALSE;
 		}
 
-		if (isset($casMappingSettings['Account']['useStaticProviderName']) 
+		if (isset($casMappingSettings['Account']['useStaticProviderName'])
 		&& !is_string($casMappingSettings['Account']['useStaticProviderName'])) {
 			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The value of TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Account.useStaticProviderName is not a string. Please specify it in your Settings.yaml file properly or ommit this option.', 1371203321, array($providerName), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Account.useStaticProviderName', $providerName));
 			$validationResult = FALSE;
@@ -163,8 +163,8 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 	}
 
 	/**
-	 * Validates mapping settings for Roles. 
-	 * 
+	 * Validates mapping settings for Roles.
+	 *
 	 * @param string $providerName Provider name to fetch roles from.
 	 * @return mixed
 	 */
@@ -181,13 +181,13 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 			if (empty($settingsForSingleRole['identifier']) && empty($settingsForSingleRole['staticIdentifier'])) {
 				$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Roles.%s.identifier and ....Mapping.Roles.%s.staticIdentifier are empty or not set. One of both options must be defined. Use array path for CAS-Attributes by identifier or use roleidentifier(rolename without package key from Policy.yaml) by staticIdentifier. Please specify one of both options in your Settings.yaml file.', 1371056583, array($providerName, $iterator, $iterator), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Roles.%s.identifier', $providerName, $iterator, $iterator));
 				$validationResult = FALSE;
-			} 
-			if (empty($settingsForSingleRole['staticIdentifier']) 
+			}
+			if (empty($settingsForSingleRole['staticIdentifier'])
 			&& (!empty($settingsForSingleRole['identifier']) && !is_string($settingsForSingleRole['identifier']) && !is_int($settingsForSingleRole['identifier']))) {
 				$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Roles.%s.identifier is wrong. String or digit is expected but "%s" is specified.', 1373324861, array($providerName, $iterator, gettype($settingsForSingleRole['identifier'])), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Roles.%s.identifier', $providerName, $iterator));
 				$validationResult = FALSE;
 			}
-			if (!empty($settingsForSingleRole['staticIdentifier']) 
+			if (!empty($settingsForSingleRole['staticIdentifier'])
 			&& (!empty($settingsForSingleRole['staticIdentifier']) && !is_string($settingsForSingleRole['staticIdentifier']) && !is_int($settingsForSingleRole['staticIdentifier']))) {
 				$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Roles.%s.staticIdentifier is wrong. String or digit is expected but "%s" is specified.', 1373324862, array($providerName, $iterator, gettype($settingsForSingleRole['staticIdentifier'])), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Roles.%s.staticIdentifier', $providerName, $iterator));
 				$validationResult = FALSE;
@@ -197,7 +197,7 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 				$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Roles.%s.packageKey is missing or empty. Please specify it in your Settings.yaml file.', 1371056584, array($providerName, $iterator), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Roles.%s.packageKey', $providerName, $iterator));
 				$validationResult = FALSE;
 			}
-			if (array_key_exists('rewriteRoles', $settingsForSingleRole) 
+			if (array_key_exists('rewriteRoles', $settingsForSingleRole)
 			&& (empty($settingsForSingleRole['rewriteRoles']) || !is_array($settingsForSingleRole['rewriteRoles']))) {
 				$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Roles.%s.rewriteRoles is set but empty or is not an array. Please specify it as associative array with possible value from CAS-Server as key and roleIdentifier(without package key) from Policy.yaml as value.', 1371058564, array($providerName, $iterator), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Roles.%s.rewriteRoles', $providerName, $iterator));
 				$validationResult = FALSE;
@@ -208,8 +208,8 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 	}
 
 	/**
-	 * Validates mapping settings for Party. 
-	 * 
+	 * Validates mapping settings for Party.
+	 *
 	 * @param string $providerName Provider name to fetch a person from.
 	 * @return boolean
 	 */
@@ -218,7 +218,7 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 		$casMappingSettings = $this->configurationManager->getConfiguration(\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'TYPO3.Flow.security.authentication.providers.' . $providerName . '.providerOptions.Mapping');
 
 		if ((isset($casMappingSettings['doNotMapParties']) && $casMappingSettings['doNotMapParties'] === TRUE)
-		|| empty($casMappingSettings['Party']) 
+		|| empty($casMappingSettings['Party'])
 		|| (isset($casMappingSettings['Party']['doNotMapParties']) && $casMappingSettings['Party']['doNotMapParties'] === TRUE )) {
 			return TRUE;
 		}
@@ -242,7 +242,7 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 
 	/**
 	 * Validates mapping settings for Party->primaryElectronicAddress.
-	 * 
+	 *
 	 * @param type $providerName
 	 * @return boolean
 	 */
@@ -258,12 +258,12 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Party.Person.primaryElectronicAddress.identifier is missing. Please specify it in your Settings.yaml file.', 1370797676, array($providerName), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Party.Person.primaryElectronicAddress.identifier', $providerName));
 			$validationResult = FALSE;
 		}
-		if (empty($casMappingSettings['Party']['Person']['primaryElectronicAddress']['staticType']) 
+		if (empty($casMappingSettings['Party']['Person']['primaryElectronicAddress']['staticType'])
 		&& empty($casMappingSettings['Party']['Person']['primaryElectronicAddress']['type'])) {
 			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Party.Person.primaryElectronicAddress.type and ...Party.Person.primaryElectronicAddress.staticType are missing. One of both options must be defined.', 1370797677, array($providerName), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Party.Person.primaryElectronicAddress.type', $providerName));
 			$validationResult = FALSE;
 		}
-		if (empty($casMappingSettings['Party']['Person']['primaryElectronicAddress']['staticUsage']) 
+		if (empty($casMappingSettings['Party']['Person']['primaryElectronicAddress']['staticUsage'])
 		&& empty($casMappingSettings['Party']['Person']['primaryElectronicAddress']['usage'])) {
 			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Party.Person.primaryElectronicAddress.usage and ...Party.Person.primaryElectronicAddress.staticUsage are missing. One of both options must be defined.', 1370797678, array($providerName), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Party.Person.primaryElectronicAddress.usage', $providerName));
 			$validationResult = FALSE;
@@ -272,53 +272,62 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 	}
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param string $providerName
 	 * @return boolean
 	 */
 	private function validateRedirectByNewUserSettings($providerName) {
 		$casMappingSettings = $this->configurationManager->getConfiguration(\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'TYPO3.Flow.security.authentication.providers.' . $providerName . '.providerOptions.Mapping');
 
-		if (!isset($casMappingSettings['redirectByNewUser'])) {
+		if (empty($casMappingSettings['redirectByNewUser'])) {
 			return TRUE;
 		}
 
 		$validationResult = TRUE;
 
-		if (empty($casMappingSettings['redirectByNewUser']['Controller'])) {
-			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.Controller is missing or empty. Please specify it in your Settings.yaml file.', 1372270694, array($providerName), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.Controller', $providerName));
+		if (empty($casMappingSettings['redirectByNewUser']['@package'])) {
+			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.@package is missing or empty. Please specify it in your Settings.yaml file.', 1372270684, array($providerName), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.@package', $providerName));
 			$validationResult = FALSE;
-		}
-		if (!is_string($casMappingSettings['redirectByNewUser']['Controller'])) {
-			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('String is expected for TYPO3.Flow.security.authentication.providers.' . $providerName . '.providerOptions.Mapping.redirectByNewUser.Controller but "' . gettype($casMappingSettings['redirectByNewUser']['Controller']) . '" given.', 1372271098);
-			$validationResult = FALSE;
-		}
-		if (!class_exists($casMappingSettings['redirectByNewUser']['Controller'])) {
-			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('Controller "' . $casMappingSettings['redirectByNewUser']['Controller'] . '" defined in TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.Controller does not exists."%s" given.', 1372271098, array($providerName, gettype($casMappingSettings['redirectByNewUser']['Controller'])), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.Controller', $providerName));
+		} elseif (!is_string($casMappingSettings['redirectByNewUser']['@package'])) {
+			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('String is expected for TYPO3.Flow.security.authentication.providers.' . $providerName . '.providerOptions.Mapping.redirectByNewUser.@package but "' . gettype($casMappingSettings['redirectByNewUser']['@package']) . '" given.', 1372271184);
 			$validationResult = FALSE;
 		}
 
-		if (empty($casMappingSettings['redirectByNewUser']['Action'])) {
-			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.Action is missing or empty. Please specify it in your Settings.yaml file.', 1372270695, array($providerName), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.Action', $providerName));
+		if (isset($casMappingSettings['redirectByNewUser']['@subpackage'])
+		&& !is_string($casMappingSettings['redirectByNewUser']['@subpackage'])) {
+			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('String is expected for TYPO3.Flow.security.authentication.providers.' . $providerName . '.providerOptions.Mapping.redirectByNewUser.@subpackage but "' . gettype($casMappingSettings['redirectByNewUser']['@subpackage']) . '" given.', 1372271185);
 			$validationResult = FALSE;
 		}
-		if (!is_string($casMappingSettings['redirectByNewUser']['Action'])) {
-			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('String is expected for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.Action but "%s" given.', 1372271099, array($providerName, gettype($casMappingSettings['redirectByNewUser']['Action'])), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.Action', $providerName));
+
+		if (empty($casMappingSettings['redirectByNewUser']['@controller'])) {
+			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.@controller is missing or empty. Please specify it in your Settings.yaml file.', 1372270694, array($providerName), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.@controller', $providerName));
+			$validationResult = FALSE;
+		} elseif (!is_string($casMappingSettings['redirectByNewUser']['@controller'])) {
+			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('String is expected for TYPO3.Flow.security.authentication.providers.' . $providerName . '.providerOptions.Mapping.redirectByNewUser.@controller but "' . gettype($casMappingSettings['redirectByNewUser']['@controller']) . '" given.', 1372271098);
 			$validationResult = FALSE;
 		}
+
+		if (empty($casMappingSettings['redirectByNewUser']['@action'])) {
+			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.@action is missing or empty. Please specify it in your Settings.yaml file.', 1372270695, array($providerName), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.@action', $providerName));
+			$validationResult = FALSE;
+		} elseif (!is_string($casMappingSettings['redirectByNewUser']['@action'])) {
+			$this->validationErrors[$providerName][] = new \TYPO3\Flow\Error\Error('String is expected for TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.@action but "%s" given.', 1372271099, array($providerName, gettype($casMappingSettings['redirectByNewUser']['@action'])), sprintf('TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.redirectByNewUser.@action', $providerName));
+			$validationResult = FALSE;
+		}
+
 		return $validationResult;
 	}
 
 	/**
 	 * Checks if default mapper is configured to map party for given provider.
-	 * 
+	 *
 	 * @param string $providerName
 	 * @return boolean
 	 */
 	private function shouldMapParty($providerName) {
 		$casMappingSettings = $this->configurationManager->getConfiguration(\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'TYPO3.Flow.security.authentication.providers.' . $providerName . '.providerOptions.Mapping');
-		
+
 		if (isset($casMappingSettings['Party'])
 		&& (empty($casMappingSettings['Party']['doNotMapParties']) || $casMappingSettings['Party']['doNotMapParties'] !== TRUE )
 		&& (empty($casMappingSettings['doNotMapParties']) || $casMappingSettings['doNotMapParties'] !== TRUE )) {
@@ -329,7 +338,7 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 
 	/**
 	 * Validates mapping settings for all providers, which are 'RafaelKa\JasigPhpCas\Authentication\Provider\PhpCasAuthenticationProvider'.
-	 * 
+	 *
 	 * @param string $validationMode
 	 * @return mixed
 	 */
@@ -342,8 +351,8 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 	}
 
 	/**
-	 * Use caching or simple property to economize multiple call for validating 
-	 * 
+	 * Use caching or simple property to economize multiple call for validating
+	 *
 	 * @param string $providerName
 	 * @return boolean
 	 */

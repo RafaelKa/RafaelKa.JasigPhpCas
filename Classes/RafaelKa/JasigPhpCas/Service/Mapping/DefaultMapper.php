@@ -21,7 +21,7 @@ class DefaultMapper implements MapperInterface {
 	/**
 	 * The default class name for CAS authentication provider.
 	 * @var string
-	 */ 
+	 */
 	DEFAULT_CAS_PROVIDER = 'RafaelKa\JasigPhpCas\Authentication\Provider\PhpCasAuthenticationProvider',
 
 	/**
@@ -34,25 +34,25 @@ class DefaultMapper implements MapperInterface {
 	/**
 	 * The path to settings for Account configuration.
 	 * @var string
-	 */ 
+	 */
 	SETTINGS_PATH_FOR_ACCOUNT = 'TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Account',
 
 	/**
 	 * The path to settings for Roles configuration.
 	 * @var string
-	 */ 
+	 */
 	SETTINGS_PATH_FOR_ROLES = 'TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Roles',
 
 	/**
 	 * The path to settings for Roles configuration.
 	 * @var string
-	 */ 
+	 */
 	SETTINGS_PATH_FOR_PARTY = 'TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Party',
 
 	/**
 	 * The path to settings for Roles configuration.
 	 * @var string
-	 */ 
+	 */
 	SETTINGS_PATH_FOR_ElectronicAddress = 'TYPO3.Flow.security.authentication.providers.%s.providerOptions.Mapping.Party.primaryElectronicAddress';
 
 	/**
@@ -61,6 +61,14 @@ class DefaultMapper implements MapperInterface {
 	 * @var array
 	 */
 	protected $settings = array();
+
+	/**
+	 * The default settings for this mapper
+	 * 
+	 * @Flow\Transient
+	 * @var array
+	 */
+	protected $defaultSettings = array();
 
 	/**
 	 * @Flow\Transient
@@ -124,7 +132,7 @@ class DefaultMapper implements MapperInterface {
 
 	/**
 	 * Constructor for this Mapper
-	 * 
+	 *
 	 * @param \TYPO3\Flow\Configuration\ConfigurationManager $configurationManager
 	 * @param \RafaelKa\JasigPhpCas\Service\CasManager $casManager
 	 * @param \RafaelKa\JasigPhpCas\Service\Mapping\Validator\DefaultMapperValidator $settingsValidator
@@ -140,9 +148,9 @@ class DefaultMapper implements MapperInterface {
 
 	/**
 	 * Builds an array with settings for all CAS providers.
-	 * 
+	 *
 	 * @todo build settings only for providers, which configured for default mapper
-	 * 
+	 *
 	 * @return void
 	 */
 	public function buildSettings(){
@@ -158,13 +166,13 @@ class DefaultMapper implements MapperInterface {
 
 	/**
 	 * Checks configuration for given provider and returns TRUE if provider uses DefaultMapper
-	 * 
+	 *
 	 * @param string $providerName
 	 * @return boolean
 	 */
 	private function isDefaultMapperChoosed($providerName) {
 		$mapper = $this->configurationManager->getConfiguration(
-			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 
+			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS,
 			'TYPO3.Flow.security.authentication.providers.' . $providerName . '.Mapping.mapperClass');
 		if (empty($mapper) || $mapper === \RafaelKa\JasigPhpCas\Service\CasManager::DEFAULT_CAS_MAPPER) {
 			return TRUE;
@@ -173,9 +181,9 @@ class DefaultMapper implements MapperInterface {
 	}
 
 	/**
-	 * Returns settings for all cas providers. 
+	 * Returns settings for all cas providers.
 	 * Arrays key is provider name.
-	 * 
+	 *
 	 * @return array
 	 */
 	public function getSettings() {
@@ -189,21 +197,21 @@ class DefaultMapper implements MapperInterface {
 	 * <b>persistAccounts</b>  = TRUE|FALSE*
 	 * <b>doNotMapParties</b>  = TRUE|FALSE*
 	 * <b>persistParties</b>   = TRUE|FALSE*
-	 * 
+	 *
 	 * <b>Auto generated values:
 	 * persistAccounts	doNotMapParties	    persistParties					Party is set in Account</b>
 	 * FALSE*		FALSE*		    FALSE (Autovalue owing to persistAccount:FALSE)	yes (depends on config) **
 	 * FALSE*		TRUE		    FALSE (Autovalue owing to persistAccount:FALSE)	without
 	 * TRUE 		TRUE		    FALSE (Autovalue owing to doNotMapParties:TRUE)	without
 	 * TRUE 		FALSE*		    TRUE						yes (depends on config)
-	 * 
+	 *
 	 * <b>
 	 * (*)	    Default value.
 	 * (**)	    Default if nothing specified</b></pre>
-	 * 
+	 *
 	 * @param string $providerName
 	 * @param array $casAttributes
-	 * @return \TYPO3\Flow\Security\Account According to the configuration see description of this method. 
+	 * @return \TYPO3\Flow\Security\Account According to the configuration see description of this method.
 	 */
 	public function getMappedUser($providerName, array $casAttributes = NULL) {
 		if (empty($casAttributes) && $this->casManager->getCasAttributes($providerName) === array()) {
@@ -228,7 +236,7 @@ class DefaultMapper implements MapperInterface {
 		&& $this->settings[$providerName]['doNotMapParties'] === TRUE) {
 			return $account;
 		}
-		
+
 		if ($this->settings[$providerName]['persistAccounts'] === TRUE
 		&& $this->settings[$providerName]['doNotMapParties'] === TRUE) {
 			// @todo : skip return account if redirectByNewUser is defined and this is new user
@@ -250,15 +258,15 @@ class DefaultMapper implements MapperInterface {
 			return $account;
 		}
 
-		
+
 	}
 
 	/**
-	 * Returns Account 
-	 * 
+	 * Returns Account
+	 *
 	 * @param string $providerName  Provider name to fetch an account from.
 	 * @param array $casAttributes
-	 * @return \TYPO3\Flow\Security\Account 
+	 * @return \TYPO3\Flow\Security\Account
 	 */
 	public function getAccount($providerName, array $casAttributes) {
 		$accountSettings = $this->settings[$providerName]['Account'];
@@ -284,14 +292,14 @@ class DefaultMapper implements MapperInterface {
 			$date = new \DateTime();
 			$date->modify('+' . $accountSettings['periodOfValidity'] . ' day');
 			$account->setExpirationDate($date);
-		} 
+		}
 
 		return $account;
 	}
 
 	/**
 	 * Persists new accounts only. If account is allready persisted, then account will be overridden with account from repository.
-	 * 
+	 *
 	 * @param string $providerName  Provider name
 	 * @param \TYPO3\Flow\Security\Account $account account to persist.
 	 * @return void
@@ -306,7 +314,7 @@ class DefaultMapper implements MapperInterface {
 
 		$casAttributes = $this->casManager->getCasAttributes($providerName);
 		$account->setRoles($this->getRoles($providerName, $casAttributes));
-		
+
 		$this->mekeRedirectByNewUserIfNeeded($providerName, $account);
 
 		$this->finalizePersistingNewUser($account);
@@ -315,7 +323,7 @@ class DefaultMapper implements MapperInterface {
 	/**
 	 * Adds new roles from CAS server since last authentication if some was added in CAS-Server.
 	 * Is used only if Account was persisted. See persistAccount() method.
-	 * 
+	 *
 	 * @param string $providerName Provider name. WARNING: not in settings set useStaticProviderNameByPersistingAccounts.
 	 * @param \TYPO3\Flow\Security\Account $account
 	 * @return void
@@ -339,17 +347,17 @@ class DefaultMapper implements MapperInterface {
 
 	/**
 	 * If Action for new users is defined and new user is detected, then makes this method redirect to defined Action and breaks authentication.
-	 * 
+	 *
 	 * You must persist new user self and afterwards authenticate this user by calling $this->casManager->authenticateNewUser($providerName).
-	 * 
+	 *
 	 * @param string $providerName
 	 * @param \TYPO3\Flow\Security\Account $account
 	 * @return void
 	 */
 	private function mekeRedirectByNewUserIfNeeded($providerName, \TYPO3\Flow\Security\Account $account) {
-		$redirectControllerAndAction = 
+		$redirectControllerAndAction =
 			$this->configurationManager->getConfiguration(
-				\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 
+				\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS,
 				'TYPO3.Flow.security.authentication.providers.' . $providerName . '.providerOptions.Mapping.redirectByNewUser');
 		if (!empty($redirectControllerAndAction)) {
 			$this->casManager->setMiscellaneousByPath($providerName . '.Account', $account);
@@ -360,9 +368,9 @@ class DefaultMapper implements MapperInterface {
 
 	/**
 	 * If authentication status is set to AUTHENTICATION_NEEDED by some token, then each action that calls some security method returns blank/white screen.
-	 * 
+	 *
 	 * This method sets authentication status to NO_CREDENTIALS_GIVEN by tokens, where authentication status was set to AUTHENTICATION_NEEDED by aborting authenticaion.
-	 * 
+	 *
 	 * @param string $providerName
 	 * @return void
 	 */
@@ -380,7 +388,7 @@ class DefaultMapper implements MapperInterface {
 
 	/**
 	 * Persists new Account.
-	 * 
+	 *
 	 * @param \TYPO3\Flow\Security\Account $account
 	 * @return void
 	 */
@@ -395,8 +403,8 @@ class DefaultMapper implements MapperInterface {
 	}
 
 	/**
-	 * Returns Collection of roles. 
-	 * 
+	 * Returns Collection of roles.
+	 *
 	 * @param string $providerName  Provider name to fetch roles from.
 	 * @param array $casAttributes
 	 * @return \Doctrine\Common\Collections\Collection<\TYPO3\Flow\Security\Policy\Role>
@@ -436,7 +444,7 @@ class DefaultMapper implements MapperInterface {
 					if ($exc->getCode() === 1353085860) {
 						$role =	$this->policyService->createRole($roleSettings['packageKey'] . ':' . $roleIdentifier);
 					} else {
-						throw new \Exception('Unknown exception by \TYPO3\Flow\Security\Policy\PolicyService->getRole(). Message: ' . $exc->getMessage() . ' Code: ' . $exc->getCode(), 1371211532); 
+						throw new \Exception('Unknown exception by \TYPO3\Flow\Security\Policy\PolicyService->getRole(). Message: ' . $exc->getMessage() . ' Code: ' . $exc->getCode(), 1371211532);
 					}
 				}
 			}
@@ -448,8 +456,8 @@ class DefaultMapper implements MapperInterface {
 	}
 
 	/**
-	 * Returns Collection of roles. 
-	 * 
+	 * Returns Collection of roles.
+	 *
 	 * @param string $casRoleIdentifier
 	 * @param array $rewriteRules Rules defined by ... Mapping.Roles.%d.rewriteRoles
 	 * @return string
@@ -462,8 +470,8 @@ class DefaultMapper implements MapperInterface {
 	}
 
 	/**
-	 * Returns Party 
-	 * 
+	 * Returns Party
+	 *
 	 * @param string $providerName Provider name to fetch a person from.
 	 * @param array $casAttributes
 	 * @return \TYPO3\Party\Domain\Model\Person
@@ -504,48 +512,48 @@ class DefaultMapper implements MapperInterface {
 
 		if (isset($partySettings['Person']['primaryElectronicAddress'])) {
 
-			if (isset($partySettings['Person']['primaryElectronicAddress']['identifier']) 
+			if (isset($partySettings['Person']['primaryElectronicAddress']['identifier'])
 			&& is_string($partySettings['Person']['primaryElectronicAddress']['identifier'])) {
 				$identifier = ArraysUtility::getValueByPath($casAttributes, $partySettings['Person']['primaryElectronicAddress']['identifier']);
 				// todo : throw exception if not string
 				if (!is_string($identifier)) {
-					
+
 				}
 			}
 
-			if (empty($partySettings['Person']['primaryElectronicAddress']['staticType']) 
-			&& isset($partySettings['Person']['primaryElectronicAddress']['type']) 
+			if (empty($partySettings['Person']['primaryElectronicAddress']['staticType'])
+			&& isset($partySettings['Person']['primaryElectronicAddress']['type'])
 			&& is_string($partySettings['Person']['primaryElectronicAddress']['type'])) {
 				$type = ArraysUtility::getValueByPath($casAttributes, $partySettings['Person']['primaryElectronicAddress']['type']);
 				// todo : throw exception if not string
 				if (!is_string($type)) {
-					
+
 				}
 			}
-			if (empty($partySettings['Person']['primaryElectronicAddress']['staticUsage']) 
-			&& isset($partySettings['Person']['primaryElectronicAddress']['usage']) 
+			if (empty($partySettings['Person']['primaryElectronicAddress']['staticUsage'])
+			&& isset($partySettings['Person']['primaryElectronicAddress']['usage'])
 			&& is_string($partySettings['Person']['primaryElectronicAddress']['usage'])) {
 				$usage = ArraysUtility::getValueByPath($casAttributes, $partySettings['Person']['primaryElectronicAddress']['usage']);
 				// todo : throw exception if not string
 				if (!is_string($usage)) {
-					
+
 				}
 			}
 			// static values for type and usage
-			if (isset($partySettings['Person']['primaryElectronicAddress']['staticType']) 
+			if (isset($partySettings['Person']['primaryElectronicAddress']['staticType'])
 			&& is_string($partySettings['Person']['primaryElectronicAddress']['staticType'])) {
 				$type = $partySettings['Person']['primaryElectronicAddress']['staticType'];
 				// todo : throw exception if not string
 				if (!is_string($type)) {
-					
+
 				}
 			}
-			if (isset($partySettings['Person']['primaryElectronicAddress']['staticUsage']) 
+			if (isset($partySettings['Person']['primaryElectronicAddress']['staticUsage'])
 			&& is_string($partySettings['Person']['primaryElectronicAddress']['staticUsage'])) {
 				$usage = $partySettings['Person']['primaryElectronicAddress']['staticUsage'];
 				// todo : throw exception if not string
 				if (!is_string($usage)) {
-					
+
 				}
 			}
 			$primaryElectronicAddress = new \TYPO3\Party\Domain\Model\ElectronicAddress();
@@ -561,7 +569,7 @@ class DefaultMapper implements MapperInterface {
 
 	/**
 	 * Compares person names.
-	 * 
+	 *
 	 * @param \TYPO3\Party\Domain\Model\PersonName $person1
 	 * @param \TYPO3\Party\Domain\Model\PersonName $person2
 	 * @return boolean ELSE if some properties are different.
@@ -571,7 +579,7 @@ class DefaultMapper implements MapperInterface {
 		$personName2Properties = ObjectAccess::getGettableProperties($personName2);
 		unset($personName1Properties['__isInitialized__']);
 		unset($personName2Properties['__isInitialized__']);
-		
+
 		foreach ($personName1Properties as $propertyname => $personName1PropertyValue) {
 			if ($personName1PropertyValue !== $personName2Properties[$propertyname]) {
 				return FALSE;
@@ -581,7 +589,7 @@ class DefaultMapper implements MapperInterface {
 
 	/**
 	 * compare two electronic addresses
-	 * 
+	 *
 	 * @todo : handle redirect by updated cas attributes in some other place
 	 * @param \TYPO3\Party\Domain\Model\ElectronicAddress $address1
 	 * @param \TYPO3\Party\Domain\Model\ElectronicAddress $address2
@@ -600,7 +608,7 @@ class DefaultMapper implements MapperInterface {
 
 	/**
 	 * First must be from repository.
-	 * 
+	 *
 	 * @param \TYPO3\Party\Domain\Model\PersonName $personName1
 	 * @param \TYPO3\Party\Domain\Model\PersonName $personName2
 	 * @return void
@@ -616,7 +624,7 @@ class DefaultMapper implements MapperInterface {
 
 	/**
 	 * checks settings for mapping Settings.yaml for each CAS-Provider.
-	 * 
+	 *
 	 * @todo make it possible to get all messages in command line.
 	 * @return mixed TRUE if all setting are valid. Array with providername as key and array with errors.
 	 */
@@ -649,50 +657,50 @@ class DefaultMapper implements MapperInterface {
 	}
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param string $providerName
 	 * @return array
 	 */
 	private function getAccountMappingConfiguration($providerName) {
 		return $this->configurationManager->getConfiguration(
-			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 
+			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS,
 			sprintf(self::SETTINGS_PATH_FOR_ACCOUNT, $providerName));
 	}
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param string $providerName
 	 * @return array
 	 */
 	private function getRolesMappingConfiguration($providerName) {
 		return $this->configurationManager->getConfiguration(
-			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 
+			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS,
 			sprintf(self::SETTINGS_PATH_FOR_ROLES, $providerName));
 	}
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param string $providerName
 	 * @return array
 	 */
 	private function getPartyMappingConfiguration($providerName) {
 		return $this->configurationManager->getConfiguration(
-			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 
+			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS,
 			sprintf(self::SETTINGS_PATH_FOR_PARTY, $providerName));
 	}
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param string $providerName
 	 * @return array
 	 */
 	private function getElectronicAddressMappingConfiguration($providerName) {
 		return $this->configurationManager->getConfiguration(
-			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 
+			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS,
 			sprintf(self::SETTINGS_PATH_FOR_PARTY, $providerName));
 	}
 }

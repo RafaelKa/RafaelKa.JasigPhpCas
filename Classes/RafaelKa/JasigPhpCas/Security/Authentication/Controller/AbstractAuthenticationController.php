@@ -66,19 +66,19 @@ abstract class AbstractAuthenticationController extends \TYPO3\Flow\Security\Aut
 
 	/**
 	 * This method writes in CasManager referer request in session because redirecting to cas server is this referer lost.
-	 * 
+	 *
 	 * You can get latest referer before redurect as follows: $this->casManager->getMiscellaneousByPath($providerName . '.beforeRedirectRefererUri');
-	 * 
+	 *
 	 * @param string $providerName
 	 * @return \TYPO3\Flow\Http\Uri
-	 * @todo skip this step if currentRequest === refererRequest 
+	 * @todo skip this step if currentRequest === refererRequest
 	 */
 	private function catchReferer($providerName) {
-		if (!$this->request->getHttpRequest()->getHeaders()->has('Referer') 
+		if (!$this->request->getHttpRequest()->getHeaders()->has('Referer')
 		|| !$this->request->getHttpRequest()->getHeaders()->has('Host')) {
 			return NULL;
 		}
-		
+
 		$hostName = $this->request->getHttpRequest()->getHeaders()->get('Host');
 		$referer = $this->request->getHttpRequest()->getHeaders()->get('Referer');
 		$refererUri = new \TYPO3\Flow\Http\Uri($referer);
@@ -91,8 +91,8 @@ abstract class AbstractAuthenticationController extends \TYPO3\Flow\Security\Aut
 
 	/**
 	 * This action makes session writing possible, because phpCAS stops request with redirect to cas server and brakes session writing.
-	 * @see authenticateAction() ::: $this->catchReferer() 
-	 *  
+	 * @see authenticateAction() ::: $this->catchReferer()
+	 *
 	 * @return string
 	 */
 	public function casAuthenticationAction() {
@@ -123,14 +123,29 @@ abstract class AbstractAuthenticationController extends \TYPO3\Flow\Security\Aut
 	}
 
 	/**
+	 * Removes not anymore needed CAS-Cookie 'PHPSESSID'
+	 *
+	 * @return void
+	 */
+	protected function expireCookieFromJasigCAS() {
+		$httpRequest = $this->request->getHttpRequest();
+		if (!$httpRequest->hasCookie('PHPSESSID')) {
+			return;
+		}
+        $cookie = $httpRequest->getCookie('PHPSESSID');
+        $cookie->expire();
+        $this->response->setCookie($cookie);
+	}
+
+	/**
 	 * Defines template if configured for provider.
-	 * 
+	 *
 	 * @param string $providerName
 	 * @return boolean TRUE if some configuration found, FALSE if no configuration defined for given provider.
 	 */
 	private function definePrettyPreRedirectTemplate($providerName){
 		$prettyPreRedirectPage = $this->configurationManager->getConfiguration(
-			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 
+			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS,
 			'TYPO3.Flow.security.authentication.providers.' . $providerName . '.providerOptions.Miscellaneous.prettyPreRedirectPage');
 
 		if (empty($prettyPreRedirectPage)) {
@@ -162,9 +177,10 @@ abstract class AbstractAuthenticationController extends \TYPO3\Flow\Security\Aut
 	}
 
 	/**
-	 * @todo provide this functionality.
-	 * redirection action must persist account and Party after accepting some agreements.
-	 * 
+	 * Redirects to defined action by new users.
+	 *
+	 * Note: appendExceedingArguments is requered in your routes.
+	 *
 	 * @return void
 	 */
 	protected function makeRedirectByDetectingNewUser() {
@@ -173,15 +189,15 @@ abstract class AbstractAuthenticationController extends \TYPO3\Flow\Security\Aut
 		if (empty($providerName)) {
 			throw new \TYPO3\Flow\Security\Exception('New user detected but can not provide redirect to defined action, because requered argument "__casAuthenticationProviderName" is not set.', 1375272628);
 		}
-	    
+
 		if (!$this->casManager->isCasProvider($providerName)) {
 			throw new \RafaelKa\JasigPhpCas\Exception\InvalidArgumentException(sprintf('New user detected but can not provide redirect to defined action, because "%s" provider is not of type "%s".', $providerName, \RafaelKa\JasigPhpCas\Service\CasManager::DEFAULT_CAS_PROVIDER), 1375273096);
 		}
-		
+
 		$redirectByNewUser = $this->configurationManager->getConfiguration(
-			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 
+			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS,
 			'TYPO3.Flow.security.authentication.providers.' . $providerName . '.providerOptions.Mapping.redirectByNewUser');
-		
+
 		if (empty($redirectByNewUser['@action'])) {
 			throw new \RafaelKa\JasigPhpCas\Exception\InvalidArgumentException(sprintf(''));
 		}

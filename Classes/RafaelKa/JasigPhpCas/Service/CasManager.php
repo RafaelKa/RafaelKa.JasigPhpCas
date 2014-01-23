@@ -19,11 +19,11 @@ use	TYPO3\Flow\Annotations as Flow,
 /**
  * Description of SingleSignOnManager
  *
- * 
+ *
  * @Flow\Scope("session")
- * 
+ *
  * @todo move \phpCAS::* and DEFAULT_CAS_SERVER_* to PhpCasClientLocum. Remove systemLogger property if not needed.<br>
- * @todo move validate* 
+ * @todo move validate*
  * @todo replace miscellaneous properly
  * @todo finish and move resolveResoursceToRealpath() to Utility to use that static. Remove packageManager property
  */
@@ -64,7 +64,7 @@ class CasManager {
 
 	/**
 	 * settings from all cas providers. Provider name is the key
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $casAttributes = array();
@@ -125,9 +125,9 @@ class CasManager {
 
 	/**
 	 * forces to authenticate.
-	 * 
+	 *
 	 * @todo force throwing exception by wrong settings for mapping before redirect.
-	 * 
+	 *
 	 * @param string $providerName Provider name to authenticate
 	 * @Flow\Session(autoStart = TRUE)
 	 * @return array array with CAS attributes.
@@ -159,7 +159,7 @@ class CasManager {
 
 	/**
 	 * Description
-	 * 
+	 *
 	 * @param string $providerName
 	 * @return void
 	 */
@@ -173,13 +173,13 @@ class CasManager {
 				$casToken->setAuthenticationStatus(\TYPO3\Flow\Security\Authentication\TokenInterface::AUTHENTICATION_SUCCESSFUL);
 				$mapper = $this->getMapperByProviderName($providerName);
 				$mapper->finalizePersistingNewUser($this->miscellaneous[$providerName]['Account']);
-			}	
+			}
 		}
 	}
 
 	/**
 	 * All mapper should validate setting on creation time.
-	 * 
+	 *
 	 * @return void
 	 */
 	private function forceThrowingValidationException() {
@@ -191,7 +191,7 @@ class CasManager {
 
 	/**
 	 * Returns all providers, where provider is RafaelKa\JasigPhpCas\Security\Authentication\Provider\PhpCasAuthenticationProvider
-	 * 
+	 *
 	 * @return array
 	 */
 	public function getAllCasProviderNames() {
@@ -200,7 +200,7 @@ class CasManager {
 		}
 
 		$providers = $this->configurationManager->getConfiguration(
-			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 
+			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS,
 			'TYPO3.Flow.security.authentication.providers');
 		foreach ($providers as $providerName => $providerSettings) {
 			if ($this->isCasProvider($providerName)) {
@@ -212,7 +212,7 @@ class CasManager {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return void
 	 */
 	public function forceCasAuthentification(){
@@ -220,7 +220,7 @@ class CasManager {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param string $providerName Provider name
 	 * @param array $casAttributes attributes given by CAS-Server.
 	 * @Flow\Session(autoStart = TRUE)
@@ -231,10 +231,10 @@ class CasManager {
 	}
 
 	/**
-	 * Returns Account 
-	 * 
+	 * Returns Account
+	 *
 	 * @param string $providerName Provider name to fetch an Account from.
-	 * @param array $casAttributes attributes given by cas server 
+	 * @param array $casAttributes attributes given by cas server
 	 * @return \TYPO3\Flow\Security\Account
 	 */
 	public function getAccount($providerName, $casAttributes = NULL) {
@@ -249,8 +249,8 @@ class CasManager {
 	}
 
 	/**
-	 * Returns Collection of roles. 
-	 * 
+	 * Returns Collection of roles.
+	 *
 	 * @param array $casAttributes
 	 * @param string $providerName Provider name to fetch Roles from.
 	 * @return \Doctrine\Common\Collections\Collection<\TYPO3\Flow\Security\Policy\Role>
@@ -261,8 +261,8 @@ class CasManager {
 	}
 
 	/**
-	 * Returns Party 
-	 * 
+	 * Returns Party
+	 *
 	 * @param string $providerName Provider name to fetch a person from.
 	 * @param array $casAttributes
 	 * @return \TYPO3\Party\Domain\Model\Person
@@ -274,7 +274,7 @@ class CasManager {
 
 	/**
 	 * Returns the class names of the tokens this provider can authenticate.
-	 * This must be an RafaelKa\JasigPhpCas\Authentication\Provider\PhpCasAuthenticationProvider otherwise throws this method \RafaelKa\JasigPhpCas\Exception\InvalidArgumentException . 
+	 * This must be an RafaelKa\JasigPhpCas\Authentication\Provider\PhpCasAuthenticationProvider otherwise throws this method \RafaelKa\JasigPhpCas\Exception\InvalidArgumentException .
 	 *
 	 * @param string $providerName defined in Settings.yaml
 	 * @return array
@@ -288,7 +288,7 @@ class CasManager {
 		}
 
 		$tokenClasses = $this->configurationManager->getConfiguration(
-			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 
+			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS,
 			'TYPO3.Flow.security.authentication.providers.' . $providerName . '.tokenClasses');
 		if (!empty($tokenClasses) && is_array($tokenClasses)) {
 
@@ -310,10 +310,10 @@ class CasManager {
 	}
 
 	/**
-	 * Adds something to storage. 
-	 * WARN: you can not overrule something. 
+	 * Adds something to storage.
+	 * WARN: you can not overrule something.
 	 * If you want to overrule something then use please setMiscellaneousByPath()
-	 * 
+	 *
 	 * @param string $providerName provider name
 	 * @param array $miscellaneous storage for miscellaneous internal things.
 	 * @Flow\Session(autoStart = TRUE)
@@ -324,7 +324,7 @@ class CasManager {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param string $path
 	 * @param array $value
 	 * @Flow\Session(autoStart = TRUE)
@@ -336,7 +336,7 @@ class CasManager {
 
 	/**
 	 * returns value by path from miscellaneous array.
-	 * 
+	 *
 	 * @param string $path
 	 * @return array|string
 	 */
@@ -345,8 +345,8 @@ class CasManager {
 	}
 
 	/**
-	 * Adds something 
-	 * 
+	 * Adds something
+	 *
 	 * @param string $providerName provider name
 	 * @return array array with miscellaneous things by provider name
 	 */
@@ -359,7 +359,7 @@ class CasManager {
 
 	/**
 	 * Returns cas attributes array from cas server.
-	 * 
+	 *
 	 * @param string $providerName provider name
 	 * @return array
 	 */
@@ -372,13 +372,13 @@ class CasManager {
 
 	/**
 	 * checks validation status for given provider.
-	 * 
+	 *
 	 * @todo Disable this functionality, because settingsvalidation in production context is fast enough.
 	 * @param string $providerName
 	 * @return bool
 	 */
 	private function wasProviderValidated($providerName) {
-		if (isset($this->miscellaneous[$providerName]['casSettingsAreValid']) 
+		if (isset($this->miscellaneous[$providerName]['casSettingsAreValid'])
 		&& $this->miscellaneous[$providerName]['casSettingsAreValid'] === TRUE) {
 			return TRUE;
 		}
@@ -387,7 +387,7 @@ class CasManager {
 
 	/**
 	 * Marks given provider as successfully validated.
-	 * 
+	 *
 	 * @param string $providerName
 	 * @return void
 	 */
@@ -397,7 +397,7 @@ class CasManager {
 
 	/**
 	 * Checks whether a provider is a CAS provider.
-	 * 
+	 *
 	 * @param string $providerName provider name
 	 * @return bool
 	 */
@@ -411,9 +411,9 @@ class CasManager {
 
 	/**
 	 * initilize phpCAS::client()
-	 * 
+	 *
 	 * @todo move to other class
-	 * 
+	 *
 	 * @param string $providerName defined in Settings.yaml
 	 * @return void
 	 */
@@ -423,12 +423,12 @@ class CasManager {
 		}
 
 		$casClientSettings = $this->getClientSettingsByProviderName($providerName);
-		try { 
+		try {
 			\phpCAS::client(
-				$casClientSettings['server_version'], 
-				$casClientSettings['server_hostname'], 
-				$casClientSettings['server_port'], 
-				$casClientSettings['server_uri'], 
+				$casClientSettings['server_version'],
+				$casClientSettings['server_hostname'],
+				$casClientSettings['server_port'],
+				$casClientSettings['server_uri'],
 				$casClientSettings['changeSessionID']);
 		} catch (\Exception $exc) {
 			throw new \RafaelKa\JasigPhpCas\Exception\JasigPhpCasException('CasAuthenticationProvider::createPhpCasClient() \phpCAS::client() can not be initialized.' . PHP_EOL . $exc->getMessage(), 1371245280);
@@ -437,17 +437,17 @@ class CasManager {
 	}
 
 	/**
-	 * 
+	 *
 	 * @todo make this options usable.
 	 * @todo move to other class
-	 * 
+	 *
 	 * @param string $providerName defined in Settings.yaml
 	 * @return void
 	 * @throws \TYPO3\Flow\Exception
 	 */
 	private function setOptionalClientSettings($providerName) {
 		$casClientSettings = $this->getClientSettingsByProviderName($providerName);
-		
+
 		try {
 			if (!empty($casClientSettings['serverLoginURL'])) {
 				\phpCAS::setServerLoginURL($casClientSettings['serverLoginURL']);
@@ -474,12 +474,12 @@ class CasManager {
 	}
 
 	/**
-	 * Returns settings for Cas-Client by given cas provider. 
+	 * Returns settings for Cas-Client by given cas provider.
 	 * WARNING: Given provider must be of type RafaelKa\JasigPhpCas\Authentication\Provider\PhpCasAuthenticationProvider
 	 * validateConfigurationForCasProvider
 	 *
 	 * @todo move to other class
-	 * 
+	 *
 	 * @param string $providerName defined in Settings.yaml providers name
 	 * @return array with setting for CAS Client
 	 */
@@ -505,9 +505,9 @@ class CasManager {
 	 * Set the certificate of the CAS server CA with phpCAS::setCasServerCACert
 	 * you should set noCasServerValidation or
 	 * casServerCACertificatePath: 'resource://........' in Settings.yaml
-	 * 
+	 *
 	 * @todo move to other class
-	 * 
+	 *
 	 * @param string $providerName defined in Settings.yaml
 	 * @return boolean
 	 */
@@ -530,9 +530,9 @@ class CasManager {
 
 	/**
 	 * @todo Provide persisted resources
-	 * 
+	 *
 	 * @param string $resource 'resource://'
-	 * @param boolean $fileExists <b>&$fileExists</b> if set then checks file existency and sets given variable accordingly result of check. 
+	 * @param boolean $fileExists <b>&$fileExists</b> if set then checks file existency and sets given variable accordingly result of check.
 	 * @return string
 	 */
 	private function resolveResoursceToRealpath ($resource, &$fileExists = NULL) {
@@ -561,7 +561,7 @@ class CasManager {
 	}
 
 	/**
-	 * Validates tokenClasses and CAS-client settings by given cas provider. 
+	 * Validates tokenClasses and CAS-client settings by given cas provider.
 	 * WARNING: Given provider must be of type RafaelKa\JasigPhpCas\Authentication\Provider\PhpCasAuthenticationProvider
 	 * validateConfigurationForCasProvider
 	 *
@@ -574,7 +574,7 @@ class CasManager {
 	public function validateCASSettingsByProvider($providerName) {
 
 		$provider = $this->configurationManager->getConfiguration(
-			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 
+			\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS,
 			'TYPO3.Flow.security.authentication.providers.' . $providerName);
 
 		if (empty($provider)) {
@@ -599,7 +599,7 @@ class CasManager {
 			throw new \RafaelKa\JasigPhpCas\Exception\InvalidConfigurationException(sprintf('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.tokenClasses is set but empty or is not an array. This option can be ommited but if it is set, then must contain a list(yaml array with - ) of token class names, which this provider can authenticate.', $providerName), 1371140452);
 		}
 
-		// cas Client Settings : required 
+		// cas Client Settings : required
 		if (empty($provider['providerOptions']['casClient'])) {
 			throw new \TYPO3\Flow\Security\Exception\MissingConfigurationException(sprintf('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.casClient is missing. Please specify it in your Settings.yaml file. Beware: This file must not be accessible by the public!', $providerName), 1370797663);
 		}
@@ -607,7 +607,7 @@ class CasManager {
 			throw new \TYPO3\Flow\Security\Exception\MissingConfigurationException(sprintf('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.casClient.server_hostname is missing. Please specify it in your Settings.yaml file. Beware: This file must not be accessible by the public!', $providerName), 1370797665);
 		}
 		if (empty($provider['providerOptions']['casClient']['server_uri'])) {
-			throw new \TYPO3\Flow\Security\Exception\MissingConfigurationException(sprintf('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.casClient.server_uri is missing. Please specify it in your Settings.yaml file. Beware: This file must not be accessible by the public!', $providerName), 1370797667);	
+			throw new \TYPO3\Flow\Security\Exception\MissingConfigurationException(sprintf('The configuration setting for TYPO3.Flow.security.authentication.providers.%s.providerOptions.casClient.server_uri is missing. Please specify it in your Settings.yaml file. Beware: This file must not be accessible by the public!', $providerName), 1370797667);
 		}
 		if (empty($provider['providerOptions']['casClient']['noCasServerValidation']) || $provider['providerOptions']['casClient']['noCasServerValidation'] === FALSE) {
 			if (empty($provider['providerOptions']['casClient']['casServerCACertificatePath'])) {
