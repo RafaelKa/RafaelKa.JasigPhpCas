@@ -82,6 +82,12 @@ abstract class AbstractAuthenticationController extends \TYPO3\Flow\Security\Aut
 		$hostName = $this->request->getHttpRequest()->getHeaders()->get('Host');
 		$referer = $this->request->getHttpRequest()->getHeaders()->get('Referer');
 		$refererUri = new \TYPO3\Flow\Http\Uri($referer);
+
+		$fragment = $this->request->getInternalArgument('__fragment');
+		if (!empty($fragment) && is_string($fragment)) {
+			$refererUri->setFragment($fragment);
+		}
+
 		if ($refererUri->getHost() === $hostName) {
 			$this->casManager->setMiscellaneousByPath($providerName . '.beforeRedirectRefererUri', $refererUri);
 			return $referer;
@@ -237,5 +243,3 @@ abstract class AbstractAuthenticationController extends \TYPO3\Flow\Security\Aut
 		$this->redirect($redirectByNewUser['@action'], $controllerName, $packageKey, $arguments, $delay, $statusCode, $format);
 	}
 }
-
-?>
