@@ -37,10 +37,11 @@ class ValidateCommandController extends \TYPO3\Flow\Cli\CommandController {
 	public function providerCommand($providerName) {
 		$this->renderPrettyYaml($providerName);
 		$this->renderErrors($providerName);
+		//$this->pr
 	}
 
 	/**
-	 * 
+	 *
 	 * @param type $providerName
 	 * @return void
 	 */
@@ -61,8 +62,8 @@ class ValidateCommandController extends \TYPO3\Flow\Cli\CommandController {
 	}
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param string $errors
 	 * @return void
 	 */
@@ -97,15 +98,15 @@ class ValidateCommandController extends \TYPO3\Flow\Cli\CommandController {
 		$roleErrors = ArraysUtility::getValueByPath($settings, 'TYPO3.Flow.security.authentication.providers.' . $providerName . '.providerOptions.Mapping.Roles');
 		ksort($roleErrors);
 		$settings = ArraysUtility::setValueByPath($settings, 'TYPO3.Flow.security.authentication.providers.' . $providerName . '.providerOptions.Mapping.Roles', $roleErrors);
-		
-		
+
+
 		$this->outputLine('<b>See this on YAML:</b> errors are bold and with # marked.');
 		$this->outputLine('<b>' . str_repeat('-', self::MAXIMUM_LINE_LENGTH) . '</b>');
 
 		$yaml = \Symfony\Component\Yaml\Yaml::dump($settings, 99, 2);
 		$this->output($yaml);
 		$this->outputLine('<b>' . str_repeat('-', self::MAXIMUM_LINE_LENGTH) . '</b>');
-		
+
 	}
 
 	/**
@@ -132,9 +133,7 @@ class ValidateCommandController extends \TYPO3\Flow\Cli\CommandController {
 			$this->renderErrors($providerName);
 		}
 		$this->outputLine('<b>' . str_repeat('#', self::MAXIMUM_LINE_LENGTH) . '</b>');
-		
+
 	}
 
 }
-
-?>
