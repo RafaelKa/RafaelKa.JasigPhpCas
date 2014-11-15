@@ -3,7 +3,6 @@
 	"type": "typo3-flow-package",
 	"description": "Jasigs \"Cantral Authentication Service\"-Client for TYPO3 Flow and Neos",
 	"license": ["MIT"],
-	"version": "0.5",
 	"authors": [
 		{
 			"name": "Rafael Kähm",
