@@ -6,12 +6,6 @@ namespace RafaelKa\JasigPhpCas\Service;
  *                                                                       *
  *                                                                       */
 
-/*                                                                        *
- * Include Resources/PHP/CAS-X.Y.Z/CAS.php file                           *
- *                                                                        *
- *                                                                        */
-require_once(FLOW_PATH_PACKAGES.str_replace ('/', DIRECTORY_SEPARATOR, 'Application/RafaelKa.JasigPhpCas/Resources/PHP/CAS/CAS-1.3.2/CAS.php'));
-
 use	TYPO3\Flow\Annotations as Flow,
 	TYPO3\Flow\Utility\Arrays as ArraysUtility,
 	phpCAS;
@@ -130,6 +124,8 @@ class CasManager {
 	 *
 	 * @param string $providerName Provider name to authenticate
 	 * @Flow\Session(autoStart = TRUE)
+	 * @throws \RafaelKa\JasigPhpCas\Exception\InvalidArgumentException
+	 * @throws \RafaelKa\JasigPhpCas\Exception\CasAttributesEmptyException
 	 * @return array array with CAS attributes.
 	 */
 	public function authenticate($providerName) {
@@ -668,5 +664,3 @@ class CasManager {
 		return $this->providerMappers[$providerName];
 	}
 }
-
-?>

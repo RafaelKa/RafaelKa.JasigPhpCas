@@ -86,5 +86,3 @@ class PhpCasAuthenticationProvider implements AuthenticationProviderInterface {
 		return $this->casManager->getTokenClassNamesByProviderName($this->name);
 	}
 }
-
-?>

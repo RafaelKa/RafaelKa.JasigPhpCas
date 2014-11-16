@@ -11,8 +11,4 @@ namespace RafaelKa\JasigPhpCas\Exception;
  *
  * @author rafael
  */
-class ProviderNameDoesNotExistsException extends \TYPO3\Flow\Exception {
-    //put your code here
-}
-
-?>
+class ProviderNameDoesNotExistsException extends \TYPO3\Flow\Exception {}

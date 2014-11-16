@@ -15,8 +15,4 @@ use	TYPO3\Flow\Annotations as Flow;
  *
  * @Flow\Scope("singleton")
  */
-class CasClientValidator {
-	
-}
-
-?>
+class CasClientValidator {}

@@ -11,8 +11,4 @@ namespace RafaelKa\JasigPhpCas\Exception;
  *
  * @author rafael
  */
-class InvalidClassDefinitionForMapperException extends \TYPO3\Flow\Exception {
-    //put your code here
-}
-
-?>
+class InvalidClassDefinitionForMapperException extends \TYPO3\Flow\Exception {}

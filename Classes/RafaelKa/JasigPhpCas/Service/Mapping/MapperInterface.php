@@ -76,23 +76,4 @@ interface MapperInterface {
 	 * @return void
 	 */
 	public function finalizePersistingNewUser(\TYPO3\Flow\Security\Account $account);
-
-//	/**
-//	 * Injects validator  
-//	 * each provider can use own validator (singleton) defined in Settings.yaml
-//	 * 
-//	 * @param \RafaelKa\JasigPhpCas\Service\SettingsVlidatorInterface $settingsValidator 
-//	 * @return void
-//	 */
-//	public function injectValidator(\RafaelKa\JasigPhpCas\Service\SettingsVlidatorInterface $settingsValidator);
-//
-//	/**
-//	 * returns used validator  
-//	 *  
-//	 * @return \RafaelKa\JasigPhpCas\Service\SettingsVlidatorInterface
-//	 */
-//	public function getValidator();
-
 }
-
-?>

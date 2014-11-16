@@ -55,5 +55,3 @@ interface MappingValidatorInterface {
 	public function isProviderValidated($providerName);
 
 }
-
-?>

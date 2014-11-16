@@ -363,4 +363,3 @@ class DefaultMapperValidator implements MappingValidatorInterface {
 		return FALSE;
 	}
 }
-?>

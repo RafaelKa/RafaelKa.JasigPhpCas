@@ -14,7 +14,4 @@ use	TYPO3\Flow\Annotations as Flow;
  *
  * 
  */
-class WrongMappingConfigurationException extends \TYPO3\Flow\Exception {
-}
-
-?>
+class WrongMappingConfigurationException extends \TYPO3\Flow\Exception {}
