@@ -7,7 +7,9 @@ namespace RafaelKa\JasigPhpCas\Security\Authentication\Provider;
  *                                                                        */
 
 use	TYPO3\Flow\Annotations as Flow,
-	TYPO3\Flow\Security\Authentication\AuthenticationProviderInterface;
+	TYPO3\Flow\Security\Authentication\AuthenticationProviderInterface,
+	TYPO3\Flow\Security\Authentication\TokenInterface,
+	RafaelKa\JasigPhpCas\Service\CasManager;
 
 /**
  * An authentication provider that authenticates
@@ -27,7 +29,7 @@ class PhpCasAuthenticationProvider implements AuthenticationProviderInterface {
 
 	/**
 	 * @Flow\Inject
-	 * @var \RafaelKa\JasigPhpCas\Service\CasManager
+	 * @var CasManager
 	 */
 	protected $casManager;
 
@@ -46,35 +48,33 @@ class PhpCasAuthenticationProvider implements AuthenticationProviderInterface {
 	 * Checks the given token for validity and sets the token authentication status
 	 * accordingly (success, if __casAuthenticationProviderName == $this->name).
 	 *
-	 * @param \TYPO3\Flow\Security\Authentication\TokenInterface $authenticationToken The token to be authenticated
+	 * @param TokenInterface $authenticationToken The token to be authenticated
 	 * @return void
 	 * @throws \TYPO3\Flow\Security\Exception\UnsupportedAuthenticationTokenException
 	 */
-	public function authenticate(\TYPO3\Flow\Security\Authentication\TokenInterface $authenticationToken) {
+	public function authenticate(TokenInterface $authenticationToken) {
 		if ($authenticationToken->getAuthenticationProviderName() === $this->name) {
 			$casAttributes = $this->casManager->authenticate($this->name);
 			if (!empty($casAttributes) && is_array($casAttributes)) {
 				$account = $this->casManager->getAccount($this->name, $casAttributes);
 				$authenticationToken->setAccount($account);
-				$authenticationToken->setAuthenticationStatus(\TYPO3\Flow\Security\Authentication\TokenInterface::AUTHENTICATION_SUCCESSFUL);
+				$authenticationToken->setAuthenticationStatus(TokenInterface::AUTHENTICATION_SUCCESSFUL);
 			}
 		}
-		
 	}
 
 	/**
 	 * Returns TRUE if the given token can be authenticated by this provider
 	 *
-	 * @param \TYPO3\Flow\Security\Authentication\TokenInterface $authenticationToken The token that should be authenticated
+	 * @param TokenInterface $authenticationToken The token that should be authenticated
 	 * @return boolean TRUE if the given token class can be authenticated by this provider
 	 */
-	public function canAuthenticate(\TYPO3\Flow\Security\Authentication\TokenInterface $authenticationToken) {
+	public function canAuthenticate(TokenInterface $authenticationToken) {
 		if ($authenticationToken->getAuthenticationProviderName() === $this->name) {
 			return TRUE;
 		} else {
 			return FALSE;
 		}
-		
 	}
 
 	/**
