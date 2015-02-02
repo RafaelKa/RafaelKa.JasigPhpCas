@@ -15,6 +15,7 @@ use	TYPO3\Flow\Annotations as Flow,
 	TYPO3\Flow\Security\Exception\NoSuchRoleException,
 	TYPO3\Flow\Security\Policy\PolicyService,
 	TYPO3\Flow\Utility\Arrays as ArraysUtility,
+	TYPO3\Flow\Security\AccountRepository,
 	TYPO3\Flow\Security\Authentication\TokenInterface,
 	TYPO3\Party\Domain\Model\AbstractParty,
 	TYPO3\Party\Domain\Model\ElectronicAddress,
@@ -47,9 +48,8 @@ class DefaultMapper implements MapperInterface {
 	 * The default class name for CAS authentication provider.
 	 * @var string
 	 */
-	DEFAULT_MAPPING_VALIDATOR = 'RafaelKa\JasigPhpCas\Service\Validator\DefaultMapperValidator';
+	DEFAULT_MAPPING_VALIDATOR = 'RafaelKa\JasigPhpCas\Service\Validator\DefaultMapperValidator',
 
-	const
 	/**
 	 * The path to settings for Account configuration.
 	 * @var string
