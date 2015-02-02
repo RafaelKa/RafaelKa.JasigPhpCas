@@ -7,7 +7,7 @@
 composer install rafaelka-jasig-php-cas
 
 
-###here is a sample configuration file.
+### here is a sample configuration file.
 ```yaml
 TYPO3:
   Flow:
