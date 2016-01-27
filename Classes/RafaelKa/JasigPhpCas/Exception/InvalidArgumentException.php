@@ -10,8 +10,7 @@ namespace RafaelKa\JasigPhpCas\Exception;
  * Description of CasException
  *
  */
-class InvalidArgumentException extends \TYPO3\Flow\Exception {
+class InvalidArgumentException extends \TYPO3\Flow\Exception
+{
     //put your code here
 }
-
-?>

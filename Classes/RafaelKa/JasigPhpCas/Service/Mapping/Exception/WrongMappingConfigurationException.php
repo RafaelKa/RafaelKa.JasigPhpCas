@@ -7,14 +7,13 @@ namespace RafaelKa\JasigPhpCas\Service\Mapping\Exception;
  *                                                                       *
  *                                                                       */
 
-use	TYPO3\Flow\Annotations as Flow;
+use    TYPO3\Flow\Annotations as Flow;
 
 /**
  * Description of WrongMappingConfigurationException
  *
  * 
  */
-class WrongMappingConfigurationException extends \TYPO3\Flow\Exception {
+class WrongMappingConfigurationException extends \TYPO3\Flow\Exception
+{
 }
-
-?>
