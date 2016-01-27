@@ -11,8 +11,7 @@ namespace RafaelKa\JasigPhpCas\Exception;
  *
  * @author rafael
  */
-class JasigPhpCasException extends \TYPO3\Flow\Exception {
+class JasigPhpCasException extends \TYPO3\Flow\Exception
+{
     //put your code here
 }
-
-?>
