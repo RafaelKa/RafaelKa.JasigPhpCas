@@ -1,4 +1,5 @@
 <?php
+
 namespace RafaelKa\JasigPhpCas\Exception;
 
 /*                                                                        *
@@ -7,8 +8,10 @@ namespace RafaelKa\JasigPhpCas\Exception;
  *                                                                        */
 
 /**
- * Description of CasSecurityException
+ * Description of CasSecurityException.
  *
  * @author rafael
  */
-class JasigPhpCasSecurityException extends \TYPO3\Flow\Security\Exception {}
+class JasigPhpCasSecurityException extends \TYPO3\Flow\Security\Exception
+{
+}
