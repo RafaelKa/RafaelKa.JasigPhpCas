@@ -1,4 +1,5 @@
 <?php
+
 namespace RafaelKa\JasigPhpCas\Exception;
 
 /*                                                                        *
@@ -7,7 +8,8 @@ namespace RafaelKa\JasigPhpCas\Exception;
  *                                                                        */
 
 /**
- * Description of DependingOnNotSolvedIssueException
- *
+ * Description of DependingOnNotSolvedIssueException.
  */
-class DependingOnNotSolvedIssueException extends \TYPO3\Flow\Exception {}
+class DependingOnNotSolvedIssueException extends \TYPO3\Flow\Exception
+{
+}
